@@ -50,7 +50,7 @@ export default function FileUpload({
 
   let stateClasses = "border-input";
   if (error) {
-    stateClasses = "border-destructive bg-destructive/10";
+    stateClasses = "border-red-400 bg-red-50";
   } else if (status === "success") {
     stateClasses = "border-green-500 bg-green-50";
   } else if (isDragOver) {
