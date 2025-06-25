@@ -10,6 +10,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   const handleFile = async (file: File) => {
+    setError(null);
     const result = await parseAndValidateCsv(file);
     if (result.success) {
       setShowDashboard(true);
@@ -24,8 +25,7 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 space-y-4">
-      {error && <p className="text-red-500">{error}</p>}
-      <FileUpload onFileAccepted={handleFile} />
+      <FileUpload onFileAccepted={handleFile} error={error} />
     </div>
   );
 }
