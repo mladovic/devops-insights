@@ -15,7 +15,7 @@ const EXPECTED_HEADERS = [
 ];
 
 export async function parseAndValidateCsv(
-  file: File,
+  file: File
 ): Promise<
   | { success: true; data: any[] }
   | { success: false; error: "empty_file" }
@@ -27,7 +27,7 @@ export async function parseAndValidateCsv(
       header: true,
       skipEmptyLines: true,
       complete(results) {
-        const actual = results.meta.fields || [];
+        const actual = results.meta.fields ?? [];
 
         if (actual.length === 0 || results.data.length === 0) {
           resolve({ success: false, error: "empty_file" });
@@ -38,7 +38,11 @@ export async function parseAndValidateCsv(
         const unexpected = actual.filter((h) => !EXPECTED_HEADERS.includes(h));
 
         if (missing.length > 0) {
-          resolve({ success: false, error: "missing_columns", details: missing });
+          resolve({
+            success: false,
+            error: "missing_columns",
+            details: missing,
+          });
           return;
         }
 
@@ -50,7 +54,6 @@ export async function parseAndValidateCsv(
           });
           return;
         }
-
         resolve({ success: true, data: results.data as any[] });
       },
       error() {

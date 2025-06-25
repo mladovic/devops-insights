@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, parseISO, isValid } from "date-fns";
+import { differenceInCalendarDays, isValid } from "date-fns";
 
 export interface RawTask {
   ID: number | string;
@@ -30,7 +30,7 @@ export function calculateTaskMetrics(tasks: RawTask[]): TaskMetrics[] {
       };
     }
 
-    const closedDate = parseISO(closedDateStr);
+    const closedDate = new Date(closedDateStr);
     if (!isValid(closedDate)) {
       return {
         ID: id,
@@ -39,9 +39,9 @@ export function calculateTaskMetrics(tasks: RawTask[]): TaskMetrics[] {
       };
     }
 
-    const createdDate = parseISO(task["Created Date"]);
+    const createdDate = new Date(task["Created Date"]);
     const activatedDateStr = task["Activated Date"] ?? task["Created Date"];
-    const activatedDate = parseISO(activatedDateStr);
+    const activatedDate = new Date(activatedDateStr);
 
     const cycleTimeDays = isValid(activatedDate)
       ? differenceInCalendarDays(closedDate, activatedDate)

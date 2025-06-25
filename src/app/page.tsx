@@ -5,10 +5,7 @@ import FileUpload from "@/components/FileUpload";
 import Dashboard from "@/components/Dashboard";
 import type { TaskItem } from "@/components/DashboardTaskList";
 import type { MetricsSummaryProps } from "@/components/MetricsSummary";
-import {
-  calculateTaskMetrics,
-  type RawTask,
-} from "@/lib/calculateTaskMetrics";
+import { calculateTaskMetrics, type RawTask } from "@/lib/calculateTaskMetrics";
 import { calculateOverallMetrics } from "@/lib/calculateOverallMetrics";
 import { aggregateMetricsByType } from "@/lib/aggregateMetricsByType";
 import { calculateThroughputMetrics } from "@/lib/calculateThroughputMetrics";
@@ -53,16 +50,10 @@ export default function DashboardPage() {
         console.error("CSV upload failed: empty_file");
         break;
       case "missing_columns":
-        console.error(
-          "CSV upload failed: missing_columns",
-          result.details,
-        );
+        console.error("CSV upload failed: missing_columns", result.details);
         break;
       case "unexpected_columns":
-        console.error(
-          "CSV upload failed: unexpected_columns",
-          result.details,
-        );
+        console.error("CSV upload failed: unexpected_columns", result.details);
         break;
       default:
         console.error("CSV upload failed", result);

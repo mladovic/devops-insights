@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, parseISO, isValid } from "date-fns";
+import { differenceInCalendarDays, isValid } from "date-fns";
 import type { RawTask } from "./calculateTaskMetrics";
 
 export interface ThroughputMetrics {
@@ -13,7 +13,7 @@ export interface ThroughputMetrics {
 
 export function calculateThroughputMetrics(
   tasks: RawTask[],
-  referenceDate: Date,
+  referenceDate: Date
 ): ThroughputMetrics {
   let weekly = 0;
   let monthly = 0;
@@ -25,7 +25,7 @@ export function calculateThroughputMetrics(
     const closedStr = task["Closed Date"];
     if (!closedStr) continue;
 
-    const closedDate = parseISO(closedStr);
+    const closedDate = new Date(closedStr);
     if (!isValid(closedDate)) continue;
 
     const diff = differenceInCalendarDays(referenceDate, closedDate);
@@ -46,4 +46,3 @@ export function calculateThroughputMetrics(
     throughputLast60Days: last60,
   };
 }
-
