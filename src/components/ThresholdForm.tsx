@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { useSettings } from "@/context/SettingsContext";
-import { usePersistentThresholdConfig } from "@/hooks/usePersistentThresholdConfig";
 
 const rangeSchema = z
   .object({
@@ -37,9 +35,7 @@ const schema = z.object({
 type Thresholds = z.infer<typeof schema>;
 
 export default function ThresholdForm() {
-  const { setRcaDeviationPercentage } = useSettings();
-  const { getConfig, updateConfig } = usePersistentThresholdConfig();
-  const defaultConfig = getConfig();
+  const { config: defaultConfig, updateConfig } = useSettings();
   const {
     register,
     handleSubmit,
@@ -49,12 +45,7 @@ export default function ThresholdForm() {
     defaultValues: defaultConfig,
   });
 
-  useEffect(() => {
-    setRcaDeviationPercentage(defaultConfig.rcaDeviationPercentage);
-  }, [defaultConfig.rcaDeviationPercentage, setRcaDeviationPercentage]);
-
   const onSubmit = (data: Thresholds) => {
-    setRcaDeviationPercentage(data.rcaDeviationPercentage);
     updateConfig(data);
   };
 

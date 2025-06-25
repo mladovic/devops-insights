@@ -1,12 +1,9 @@
-export const CycleTimeThresholds = {
-  XS: [1, 2],
-  S: [2, 4],
-  M: [3, 6],
-  L: [5, 10],
-  XL: [8, 15],
-} as const;
+import {
+  defaultThresholdConfig,
+  type ThresholdConfig,
+} from "@/lib/defaultThresholdConfig";
 
-export type TShirtSize = keyof typeof CycleTimeThresholds;
+export type TShirtSize = keyof ThresholdConfig["thresholds"];
 
 /**
  * Determines if an RCA indicator should be shown based on the cycle time and
@@ -14,17 +11,18 @@ export type TShirtSize = keyof typeof CycleTimeThresholds;
  *
  * @param cycleTimeDays - The actual cycle time in days.
  * @param tShirtSize - The T‑shirt size to compare against.
- * @param deviationPercentage - Allowed deviation percentage from the range.
+ * @param config - Threshold configuration containing ranges and deviation.
  * @returns True if the cycle time deviates outside the allowed range.
  */
 export function checkRCAIndicator(
   cycleTimeDays: number,
   tShirtSize: TShirtSize,
-  deviationPercentage = 20,
+  config: ThresholdConfig = defaultThresholdConfig,
 ): boolean {
-  const [min, max] = CycleTimeThresholds[tShirtSize];
-  const factor = deviationPercentage / 100;
-  const lowerBound = min * (1 - factor);
-  const upperBound = max * (1 + factor);
+  const { thresholds, rcaDeviationPercentage } = config;
+  const { lower, upper } = thresholds[tShirtSize];
+  const factor = rcaDeviationPercentage / 100;
+  const lowerBound = lower * (1 - factor);
+  const upperBound = upper * (1 + factor);
   return cycleTimeDays < lowerBound || cycleTimeDays > upperBound;
 }

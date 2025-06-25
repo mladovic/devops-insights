@@ -1,19 +1,22 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext } from "react";
+import { usePersistentThresholdConfig } from "@/hooks/usePersistentThresholdConfig";
+import type { ThresholdConfig } from "@/lib/defaultThresholdConfig";
 
 interface SettingsContextValue {
-  rcaDeviationPercentage: number;
-  setRcaDeviationPercentage: (value: number) => void;
+  config: ThresholdConfig;
+  updateConfig: (value: ThresholdConfig) => void;
 }
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [rcaDeviationPercentage, setRcaDeviationPercentage] = useState(20);
+  const { getConfig, updateConfig } = usePersistentThresholdConfig();
+  const config = getConfig();
 
   return (
-    <SettingsContext.Provider value={{ rcaDeviationPercentage, setRcaDeviationPercentage }}>
+    <SettingsContext.Provider value={{ config, updateConfig }}>
       {children}
     </SettingsContext.Provider>
   );

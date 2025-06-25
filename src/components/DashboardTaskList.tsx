@@ -31,7 +31,7 @@ export default function DashboardTaskList({
     return null;
   }
 
-  const { rcaDeviationPercentage } = useSettings();
+  const { config } = useSettings();
 
   return (
     <Card>
@@ -54,11 +54,7 @@ export default function DashboardTaskList({
             {taskData.map((task) => {
               const isRCA =
                 typeof task.CycleTimeDays === "number" &&
-                checkRCAIndicator(
-                  task.CycleTimeDays,
-                  "M",
-                  rcaDeviationPercentage,
-                );
+                checkRCAIndicator(task.CycleTimeDays, "M", config);
 
               return (
                 <TableRow key={task.ID}>
