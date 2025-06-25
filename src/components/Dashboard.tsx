@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import MetricsSummary, { type MetricsSummaryProps } from "@/components/MetricsSummary";
 import DashboardTaskList, { type TaskItem } from "@/components/DashboardTaskList";
-import DateRangeFilter, { type DateRangeOption } from "@/components/filters/DateRangeFilter";
+import DateRangeFilter from "@/components/filters/DateRangeFilter";
+import { usePersistentDateRange } from "@/hooks/usePersistentDateRange";
+import { filterTasksByDateRange } from "@/lib/filterTasksByDateRange";
 import { useSettings } from "@/context/SettingsContext";
 import { calculateTaskMetrics, type RawTask } from "@/lib/calculateTaskMetrics";
 import { calculateOverallMetrics } from "@/lib/calculateOverallMetrics";
@@ -15,31 +17,64 @@ export interface DashboardProps {
 export default function Dashboard({ rawTasks }: DashboardProps) {
   const { config } = useSettings();
 
-  const taskMetrics = useMemo(() => calculateTaskMetrics(rawTasks), [rawTasks]);
+  const { range: selectedRange, setRange: setSelectedRange } =
+    usePersistentDateRange();
+
+  const tasksForFilter = useMemo(
+    () =>
+      rawTasks.map((t) => ({
+        ...t,
+        ClosedDate: (t as any)["Closed Date"] ?? undefined,
+      })),
+    [rawTasks],
+  );
+
+  const { completedTasks, inProgressTasks } = useMemo(
+    () => filterTasksByDateRange(tasksForFilter, selectedRange),
+    [tasksForFilter, selectedRange],
+  );
+
+  const filteredTasks = useMemo(
+    () => [...completedTasks, ...inProgressTasks],
+    [completedTasks, inProgressTasks],
+  );
+
+  const filteredRawTasks: RawTask[] = useMemo(
+    () =>
+      filteredTasks.map((task) => {
+        const { ClosedDate, ...rest } = task;
+        return { ...rest, "Closed Date": ClosedDate } as RawTask;
+      }),
+    [filteredTasks],
+  );
+
+  const taskMetrics = useMemo(
+    () => calculateTaskMetrics(filteredRawTasks),
+    [filteredRawTasks],
+  );
 
   const metricsData: MetricsSummaryProps = useMemo(
     () => ({
       overall: calculateOverallMetrics(taskMetrics),
       byType: aggregateMetricsByType(taskMetrics),
-      throughput: calculateThroughputMetrics(rawTasks, new Date()),
+      throughput: calculateThroughputMetrics(filteredRawTasks, new Date()),
+      selectedDateRange,
     }),
-    [taskMetrics, rawTasks, config],
+    [taskMetrics, filteredRawTasks, selectedRange, config],
   );
-
-  const [selectedRange, setSelectedRange] = useState<DateRangeOption>("Last month");
 
   const taskData: TaskItem[] = useMemo(
     () =>
-      rawTasks.map((task, idx) => ({
+      filteredTasks.map((task, idx) => ({
         ID: Number(task.ID),
         Title: (task as any).Title,
         WorkItemType: (task as any)["Work Item Type"],
         Assignee: (task as any)["Assigned To"] ?? null,
         CycleTimeDays: taskMetrics[idx].CycleTimeDays,
         LeadTimeDays: taskMetrics[idx].LeadTimeDays,
-        ClosedDate: (task as any)["Closed Date"] ?? undefined,
+        ClosedDate: task.ClosedDate ?? undefined,
       })),
-    [rawTasks, taskMetrics, config],
+    [filteredTasks, taskMetrics, config],
   );
 
   const hasMetricsData =
@@ -47,7 +82,10 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
 
   return (
     <div className="p-4 space-y-8">
-      <h1 className="text-2xl font-semibold">Project Dashboard</h1>
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-2xl font-semibold">Project Dashboard</h1>
+        <DateRangeFilter onRangeChange={setSelectedRange} />
+      </div>
 
       {hasMetricsData && (
         <section className="space-y-4">
@@ -59,7 +97,6 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
       {taskData && taskData.length > 0 && (
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">Task List</h2>
-          <DateRangeFilter onRangeChange={setSelectedRange} />
           <DashboardTaskList tasks={taskData} selectedDateRange={selectedRange} />
         </section>
       )}

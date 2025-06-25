@@ -11,13 +11,21 @@ import type { OverallMetrics } from "@/lib/calculateOverallMetrics";
 import type { AggregatedMetrics } from "@/lib/aggregateMetricsByType";
 import type { ThroughputMetrics } from "@/lib/calculateThroughputMetrics";
 
+import type { DateRangeOption } from "@/components/filters/DateRangeFilter";
+
 export interface MetricsSummaryProps {
   overall: OverallMetrics;
   byType: AggregatedMetrics;
   throughput: ThroughputMetrics;
+  selectedDateRange: DateRangeOption;
 }
 
-export default function MetricsSummary({ overall, byType, throughput }: MetricsSummaryProps) {
+export default function MetricsSummary({
+  overall,
+  byType,
+  throughput,
+  selectedDateRange,
+}: MetricsSummaryProps) {
   return (
     <div className="space-y-6">
       {/* Overall Metrics */}
