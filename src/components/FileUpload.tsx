@@ -5,10 +5,16 @@ import { Button } from "@/components/ui/button";
 
 interface FileUploadProps {
   onFileAccepted: (file: File) => void;
+  error?: string | null;
 }
 
-export default function FileUpload({ onFileAccepted }: FileUploadProps) {
+export default function FileUpload({
+  onFileAccepted,
+  error,
+}: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success">("idle");
+  const [hovered, setHovered] = useState(false);
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -26,6 +32,7 @@ export default function FileUpload({ onFileAccepted }: FileUploadProps) {
     const file = e.dataTransfer.files[0];
     if (file && file.name.toLowerCase().endsWith(".csv")) {
       onFileAccepted(file);
+      setStatus("success");
     }
   };
 
@@ -33,30 +40,48 @@ export default function FileUpload({ onFileAccepted }: FileUploadProps) {
     const file = e.target.files?.[0];
     if (file && file.name.toLowerCase().endsWith(".csv")) {
       onFileAccepted(file);
+      setStatus("success");
     }
   };
 
+  const base =
+    "border-2 border-dashed rounded-md p-6 text-center transition-colors";
+
+  let stateClasses = "border-input";
+  if (error) {
+    stateClasses = "border-destructive bg-destructive/10";
+  } else if (status === "success") {
+    stateClasses = "border-green-500 bg-green-50";
+  } else if (isDragOver) {
+    stateClasses = "border-primary bg-primary/10";
+  } else if (hovered) {
+    stateClasses = "border-ring bg-muted/50";
+  }
+
   return (
-    <div
-      onDragOver={handleDragOver}
-      onDragEnter={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      className={`border-2 border-dashed rounded-md p-6 text-center transition-colors ${
-        isDragOver ? "border-primary" : "border-input"
-      }`}
-    >
-      <p className="mb-2">Drag and drop your CSV file here</p>
-      <input
-        id="file-upload-input"
-        type="file"
-        accept=".csv"
-        onChange={handleChange}
-        className="hidden"
-      />
-      <label htmlFor="file-upload-input">
-        <Button type="button">Browse</Button>
-      </label>
+    <div className="space-y-2">
+      <div
+        onDragOver={handleDragOver}
+        onDragEnter={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className={`${base} ${stateClasses}`}
+      >
+        <p className="mb-2">Drag your CSV file here or click Browse</p>
+        <input
+          id="file-upload-input"
+          type="file"
+          accept=".csv"
+          onChange={handleChange}
+          className="hidden"
+        />
+        <label htmlFor="file-upload-input">
+          <Button type="button">Browse</Button>
+        </label>
+      </div>
+      {error && <p className="text-destructive text-sm">{error}</p>}
     </div>
   );
 }
