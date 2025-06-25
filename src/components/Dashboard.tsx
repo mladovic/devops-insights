@@ -8,18 +8,17 @@ export interface DashboardProps {
 }
 
 export default function Dashboard({ metricsData, taskData }: DashboardProps) {
+  const hasMetricsData =
+    metricsData && Object.keys(metricsData.byType ?? {}).length > 0;
+
   return (
     <div className="p-4 space-y-8">
       <h1 className="text-2xl font-semibold">Project Dashboard</h1>
 
-      {metricsData && (
+      {hasMetricsData && (
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">Metrics Overview</h2>
-          <MetricsSummary
-            overall={metricsData.overall}
-            byType={metricsData.byType}
-            throughput={metricsData.throughput}
-          />
+          <MetricsSummary {...metricsData} />
         </section>
       )}
 
