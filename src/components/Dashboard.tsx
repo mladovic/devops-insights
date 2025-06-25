@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import MetricsSummary, { type MetricsSummaryProps } from "@/components/MetricsSummary";
 import DashboardTaskList, { type TaskItem } from "@/components/DashboardTaskList";
 import DateRangeFilter from "@/components/filters/DateRangeFilter";
@@ -9,6 +9,7 @@ import { calculateTaskMetrics, type RawTask } from "@/lib/calculateTaskMetrics";
 import { calculateOverallMetrics } from "@/lib/calculateOverallMetrics";
 import { aggregateMetricsByType } from "@/lib/aggregateMetricsByType";
 import { calculateThroughputMetrics } from "@/lib/calculateThroughputMetrics";
+import type { SortDirection } from "@/lib/sortTasks";
 
 export interface DashboardProps {
   rawTasks: RawTask[];
@@ -19,6 +20,9 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
 
   const { range: selectedRange, setRange: setSelectedRange } =
     usePersistentDateRange();
+
+  const [sortColumn, setSortColumn] = useState<string>("ClosedDate");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const tasksForFilter = useMemo(
     () =>
@@ -113,6 +117,11 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
     [filteredTasks, taskMetrics, config],
   );
 
+  const handleSortChange = (column: string, direction: SortDirection) => {
+    setSortColumn(column);
+    setSortDirection(direction);
+  };
+
   const hasMetricsData =
     metricsData && Object.keys(metricsData.byType ?? {}).length > 0;
 
@@ -133,7 +142,13 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
       {taskData && taskData.length > 0 && (
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">Task List</h2>
-          <DashboardTaskList tasks={taskData} selectedDateRange={selectedRange} />
+          <DashboardTaskList
+            tasks={taskData}
+            selectedDateRange={selectedRange}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
+            onSortChange={handleSortChange}
+          />
         </section>
       )}
     </div>

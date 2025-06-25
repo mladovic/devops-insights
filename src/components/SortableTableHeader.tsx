@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback } from "react";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import {
   TableHeader,
@@ -10,6 +10,8 @@ import {
 import type { SortDirection } from "@/lib/sortTasks";
 
 export interface SortableTableHeaderProps {
+  sortColumn: string;
+  sortDirection: SortDirection;
   onSortChange?: (columnKey: string, sortDirection: SortDirection) => void;
   className?: string;
 }
@@ -30,29 +32,30 @@ const COLUMNS: ColumnDef[] = [
 ];
 
 export default function SortableTableHeader({
+  sortColumn,
+  sortDirection,
   onSortChange,
   className,
 }: SortableTableHeaderProps) {
-  const [sortColumn, setSortColumn] = useState<string>("ClosedDate");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
-  const handleClick = (key: string) => {
-    let newColumn = key;
-    let newDirection: SortDirection = "asc";
+  const handleClick = useCallback(
+    (key: string) => {
+      let newColumn = key;
+      let newDirection: SortDirection = "asc";
 
-    if (sortColumn === key) {
-      if (sortDirection === "asc") {
-        newDirection = "desc";
-      } else if (sortDirection === "desc") {
-        newColumn = "ClosedDate";
-        newDirection = "desc";
+      if (sortColumn === key) {
+        if (sortDirection === "asc") {
+          newDirection = "desc";
+        } else if (sortDirection === "desc") {
+          newColumn = "ClosedDate";
+          newDirection = "desc";
+        }
       }
-    }
 
-    setSortColumn(newColumn);
-    setSortDirection(newDirection);
-    onSortChange?.(newColumn, newDirection);
-  };
+      onSortChange?.(newColumn, newDirection);
+    },
+    [sortColumn, sortDirection, onSortChange],
+  );
 
   const renderIndicator = (key: string) => {
     if (sortColumn !== key) return null;

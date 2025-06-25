@@ -13,7 +13,7 @@ import { checkRCAIndicator } from "@/lib/checkRCAIndicator";
 import { filterTasksByDateRange, type DateRangeOption } from "@/lib/filterTasksByDateRange";
 import { sortTasks, type SortDirection } from "@/lib/sortTasks";
 import { useSettings } from "@/context/SettingsContext";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 export interface TaskItem {
   ID: number;
@@ -28,19 +28,23 @@ export interface TaskItem {
 export interface DashboardTaskListProps {
   tasks: TaskItem[];
   selectedDateRange: DateRangeOption;
+  sortColumn: string;
+  sortDirection: SortDirection;
+  onSortChange: (columnKey: string, direction: SortDirection) => void;
 }
 
 export default function DashboardTaskList({
   tasks,
   selectedDateRange,
+  sortColumn,
+  sortDirection,
+  onSortChange,
 }: DashboardTaskListProps) {
   if (!tasks || tasks.length === 0) {
     return null;
   }
 
   const { config } = useSettings();
-  const [sortColumn, setSortColumn] = useState<string>("ClosedDate");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const { completedTasks, inProgressTasks } = useMemo(
     () => filterTasksByDateRange(tasks, selectedDateRange),
@@ -57,10 +61,6 @@ export default function DashboardTaskList({
     [inProgressTasks, sortColumn, sortDirection],
   );
 
-  const handleSortChange = (columnKey: string, direction: SortDirection) => {
-    setSortColumn(columnKey);
-    setSortDirection(direction);
-  };
 
   return (
     <Card>
@@ -69,7 +69,11 @@ export default function DashboardTaskList({
       </CardHeader>
       <CardContent>
         <Table>
-          <SortableTableHeader onSortChange={handleSortChange} />
+          <SortableTableHeader
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
+            onSortChange={onSortChange}
+          />
           <TableBody>
             {sortedCompleted.length > 0 && (
               <>
