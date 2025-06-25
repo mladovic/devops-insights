@@ -2,18 +2,39 @@
 
 import { useState } from "react";
 import FileUpload from "@/components/FileUpload";
-import MockDashboard from "@/components/MockDashboard";
+import Dashboard from "@/components/Dashboard";
+import type { MetricsSummaryProps } from "@/components/MetricsSummary";
+import {
+  calculateTaskMetrics,
+  type RawTask,
+} from "@/lib/calculateTaskMetrics";
+import { calculateOverallMetrics } from "@/lib/calculateOverallMetrics";
+import { aggregateMetricsByType } from "@/lib/aggregateMetricsByType";
+import { calculateThroughputMetrics } from "@/lib/calculateThroughputMetrics";
 import { parseAndValidateCsv } from "@/lib/parseAndValidateCsv";
 
 export default function DashboardPage() {
   const [showDashboard, setShowDashboard] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [metrics, setMetrics] = useState<MetricsSummaryProps | null>(null);
+  const [tasks, setTasks] = useState<RawTask[] | null>(null);
 
   const handleFile = async (file: File) => {
     setError(null);
     const result = await parseAndValidateCsv(file);
 
     if (result.success) {
+      const rawTasks = result.data as RawTask[];
+      setTasks(rawTasks);
+
+      const taskMetrics = calculateTaskMetrics(rawTasks);
+      const metricsSummary: MetricsSummaryProps = {
+        overall: calculateOverallMetrics(taskMetrics),
+        byType: aggregateMetricsByType(taskMetrics),
+        throughput: calculateThroughputMetrics(rawTasks, new Date()),
+      };
+      setMetrics(metricsSummary);
+
       setShowDashboard(true);
       return;
     }
@@ -42,7 +63,7 @@ export default function DashboardPage() {
   };
 
   if (showDashboard) {
-    return <MockDashboard />;
+    return <Dashboard metricsData={metrics} taskData={tasks ?? []} />;
   }
 
   return (
