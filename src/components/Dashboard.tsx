@@ -39,28 +39,64 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
     [completedTasks, inProgressTasks],
   );
 
-  const filteredRawTasks: RawTask[] = useMemo(
+  const completedRawTasks: RawTask[] = useMemo(
     () =>
-      filteredTasks.map((task) => {
+      completedTasks.map((task) => {
         const { ClosedDate, ...rest } = task;
         return { ...rest, "Closed Date": ClosedDate } as RawTask;
       }),
-    [filteredTasks],
+    [completedTasks],
+  );
+
+  const inProgressRawTasks: RawTask[] = useMemo(
+    () =>
+      inProgressTasks.map((task) => {
+        const { ClosedDate, ...rest } = task;
+        return { ...rest, "Closed Date": ClosedDate } as RawTask;
+      }),
+    [inProgressTasks],
+  );
+
+  const filteredRawTasks: RawTask[] = useMemo(
+    () => [...completedRawTasks, ...inProgressRawTasks],
+    [completedRawTasks, inProgressRawTasks],
+  );
+
+  const completedMetrics = useMemo(
+    () => calculateTaskMetrics(completedRawTasks),
+    [completedRawTasks],
+  );
+
+  const inProgressMetrics = useMemo(
+    () => calculateTaskMetrics(inProgressRawTasks),
+    [inProgressRawTasks],
   );
 
   const taskMetrics = useMemo(
-    () => calculateTaskMetrics(filteredRawTasks),
-    [filteredRawTasks],
+    () => [...completedMetrics, ...inProgressMetrics],
+    [completedMetrics, inProgressMetrics],
   );
 
   const metricsData: MetricsSummaryProps = useMemo(
     () => ({
-      overall: calculateOverallMetrics(taskMetrics),
-      byType: aggregateMetricsByType(taskMetrics),
+      overall: calculateOverallMetrics({
+        completedTasks: completedMetrics,
+        inProgressTasks: inProgressMetrics,
+      }),
+      byType: aggregateMetricsByType({
+        completedTasks: completedMetrics,
+        inProgressTasks: inProgressMetrics,
+      }),
       throughput: calculateThroughputMetrics(filteredRawTasks, new Date()),
       selectedDateRange,
     }),
-    [taskMetrics, filteredRawTasks, selectedRange, config],
+    [
+      completedMetrics,
+      inProgressMetrics,
+      filteredRawTasks,
+      selectedRange,
+      config,
+    ],
   );
 
   const taskData: TaskItem[] = useMemo(

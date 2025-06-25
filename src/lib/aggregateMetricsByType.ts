@@ -9,10 +9,20 @@ export interface AggregatedMetrics {
 
 import type { TaskMetrics } from "./calculateTaskMetrics";
 
-export function aggregateMetricsByType(taskMetrics: TaskMetrics[]): AggregatedMetrics {
+export interface FilteredTaskMetrics {
+  completedTasks: TaskMetrics[];
+  inProgressTasks: TaskMetrics[];
+}
+
+export function aggregateMetricsByType({
+  completedTasks,
+  inProgressTasks,
+}: FilteredTaskMetrics): AggregatedMetrics {
   const result: AggregatedMetrics = {};
 
-  for (const metric of taskMetrics) {
+  const allMetrics = [...completedTasks, ...inProgressTasks];
+
+  for (const metric of allMetrics) {
     const type = metric.WorkItemType;
     if (!result[type]) {
       result[type] = {
