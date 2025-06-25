@@ -36,12 +36,20 @@ export default function MetricsSummary({
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-muted-foreground">Avg Cycle Time (days)</p>
-              <p className="text-xl font-semibold">{overall.overallAverageCycleTimeDays.toFixed(2)}</p>
+              <p className="text-sm text-muted-foreground">
+                Avg Cycle Time (days)
+              </p>
+              <p className="text-xl font-semibold">
+                {overall.overallAverageCycleTimeDays.toFixed(2)}
+              </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Avg Lead Time (days)</p>
-              <p className="text-xl font-semibold">{overall.overallAverageLeadTimeDays.toFixed(2)}</p>
+              <p className="text-sm text-muted-foreground">
+                Avg Lead Time (days)
+              </p>
+              <p className="text-xl font-semibold">
+                {overall.overallAverageLeadTimeDays.toFixed(2)}
+              </p>
             </div>
           </div>
         </CardContent>
@@ -67,45 +75,20 @@ export default function MetricsSummary({
               {Object.entries(byType).map(([type, data]) => (
                 <TableRow key={type}>
                   <TableCell>{type}</TableCell>
-                  <TableCell className="text-right">{data.averageCycleTimeDays.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">{data.averageLeadTimeDays.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">{data.completedTasks}</TableCell>
-                  <TableCell className="text-right">{data.incompleteTasks}</TableCell>
+                  <TableCell className="text-right">
+                    {data.averageCycleTimeDays.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {data.averageLeadTimeDays.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {data.completedTasks}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {data.incompleteTasks}
+                  </TableCell>
                 </TableRow>
               ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Throughput Metrics */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Throughput</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableBody>
-              <TableRow>
-                <TableCell>Last 7 days</TableCell>
-                <TableCell className="text-right">{throughput.weeklyThroughput}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Last 30 days</TableCell>
-                <TableCell className="text-right">{throughput.monthlyThroughput}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Last 14 days</TableCell>
-                <TableCell className="text-right">{throughput.throughputLast14Days}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Last 30 days (custom)</TableCell>
-                <TableCell className="text-right">{throughput.throughputLast30Days}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Last 60 days</TableCell>
-                <TableCell className="text-right">{throughput.throughputLast60Days}</TableCell>
-              </TableRow>
             </TableBody>
           </Table>
         </CardContent>
@@ -113,4 +96,3 @@ export default function MetricsSummary({
     </div>
   );
 }
-

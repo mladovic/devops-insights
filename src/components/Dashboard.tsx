@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
-import MetricsSummary, { type MetricsSummaryProps } from "@/components/MetricsSummary";
-import DashboardTaskList, { type TaskItem } from "@/components/DashboardTaskList";
+import MetricsSummary, {
+  type MetricsSummaryProps,
+} from "@/components/MetricsSummary";
+import DashboardTaskList, {
+  type TaskItem,
+} from "@/components/DashboardTaskList";
 import DateRangeFilter from "@/components/filters/DateRangeFilter";
 import { usePersistentDateRange } from "@/hooks/usePersistentDateRange";
 import { filterTasksByDateRange } from "@/lib/filterTasksByDateRange";
@@ -30,17 +34,17 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
         ...t,
         ClosedDate: (t as any)["Closed Date"] ?? undefined,
       })),
-    [rawTasks],
+    [rawTasks]
   );
 
   const { completedTasks, inProgressTasks } = useMemo(
     () => filterTasksByDateRange(tasksForFilter, selectedRange),
-    [tasksForFilter, selectedRange],
+    [tasksForFilter, selectedRange]
   );
 
   const filteredTasks = useMemo(
     () => [...completedTasks, ...inProgressTasks],
-    [completedTasks, inProgressTasks],
+    [completedTasks, inProgressTasks]
   );
 
   const completedRawTasks: RawTask[] = useMemo(
@@ -49,7 +53,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
         const { ClosedDate, ...rest } = task;
         return { ...rest, "Closed Date": ClosedDate } as RawTask;
       }),
-    [completedTasks],
+    [completedTasks]
   );
 
   const inProgressRawTasks: RawTask[] = useMemo(
@@ -58,27 +62,27 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
         const { ClosedDate, ...rest } = task;
         return { ...rest, "Closed Date": ClosedDate } as RawTask;
       }),
-    [inProgressTasks],
+    [inProgressTasks]
   );
 
   const filteredRawTasks: RawTask[] = useMemo(
     () => [...completedRawTasks, ...inProgressRawTasks],
-    [completedRawTasks, inProgressRawTasks],
+    [completedRawTasks, inProgressRawTasks]
   );
 
   const completedMetrics = useMemo(
     () => calculateTaskMetrics(completedRawTasks),
-    [completedRawTasks],
+    [completedRawTasks]
   );
 
   const inProgressMetrics = useMemo(
     () => calculateTaskMetrics(inProgressRawTasks),
-    [inProgressRawTasks],
+    [inProgressRawTasks]
   );
 
   const taskMetrics = useMemo(
     () => [...completedMetrics, ...inProgressMetrics],
-    [completedMetrics, inProgressMetrics],
+    [completedMetrics, inProgressMetrics]
   );
 
   const metricsData: MetricsSummaryProps = useMemo(
@@ -92,7 +96,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
         inProgressTasks: inProgressMetrics,
       }),
       throughput: calculateThroughputMetrics(filteredRawTasks, new Date()),
-      selectedDateRange,
+      selectedDateRange: selectedRange,
     }),
     [
       completedMetrics,
@@ -100,7 +104,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
       filteredRawTasks,
       selectedRange,
       config,
-    ],
+    ]
   );
 
   const taskData: TaskItem[] = useMemo(
@@ -114,7 +118,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
         LeadTimeDays: taskMetrics[idx].LeadTimeDays,
         ClosedDate: task.ClosedDate ?? undefined,
       })),
-    [filteredTasks, taskMetrics, config],
+    [filteredTasks, taskMetrics, config]
   );
 
   const handleSortChange = (column: string, direction: SortDirection) => {
@@ -127,7 +131,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
 
   return (
     <div className="p-4 space-y-8">
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-2 items-start">
         <h1 className="text-2xl font-semibold">Project Dashboard</h1>
         <DateRangeFilter onRangeChange={setSelectedRange} />
       </div>
