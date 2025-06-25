@@ -7,6 +7,8 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import RCAIndicator from "@/components/RCAIndicator";
+import { checkRCAIndicator } from "@/lib/checkRCAIndicator";
 
 export interface TaskItem {
   ID: number;
@@ -43,25 +45,38 @@ export default function DashboardTaskList({
               <TableHead>Assignee</TableHead>
               <TableHead>Cycle Time (days)</TableHead>
               <TableHead>Lead Time (days)</TableHead>
-              <TableHead>RCA Indicator</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {taskData.map((task) => (
-              <TableRow key={task.ID}>
-                <TableCell>{task.ID}</TableCell>
-                <TableCell>{task.Title}</TableCell>
-                <TableCell>{task.WorkItemType}</TableCell>
-                <TableCell>{task.Assignee ?? "-"}</TableCell>
-                <TableCell>
-                  {typeof task.CycleTimeDays === "number" ? task.CycleTimeDays : "-"}
-                </TableCell>
-                <TableCell>
-                  {typeof task.LeadTimeDays === "number" ? task.LeadTimeDays : "-"}
-                </TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            ))}
+            {taskData.map((task) => {
+              const isRCA =
+                typeof task.CycleTimeDays === "number" &&
+                checkRCAIndicator(task.CycleTimeDays, "M");
+
+              return (
+                <TableRow key={task.ID}>
+                  <TableCell>{task.ID}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {task.Title}
+                      <RCAIndicator isRCA={isRCA} />
+                    </div>
+                  </TableCell>
+                  <TableCell>{task.WorkItemType}</TableCell>
+                  <TableCell>{task.Assignee ?? "-"}</TableCell>
+                  <TableCell>
+                    {typeof task.CycleTimeDays === "number"
+                      ? task.CycleTimeDays
+                      : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {typeof task.LeadTimeDays === "number"
+                      ? task.LeadTimeDays
+                      : "-"}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>
