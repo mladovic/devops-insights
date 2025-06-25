@@ -7,23 +7,27 @@ export interface OverallMetrics {
 
 import type { TaskMetrics } from "./calculateTaskMetrics";
 
-export function calculateOverallMetrics(taskMetrics: TaskMetrics[]): OverallMetrics {
+export interface FilteredTaskMetrics {
+  completedTasks: TaskMetrics[];
+  inProgressTasks: TaskMetrics[];
+}
+
+export function calculateOverallMetrics({
+  completedTasks,
+  inProgressTasks,
+}: FilteredTaskMetrics): OverallMetrics {
   let totalCycleTime = 0;
   let totalLeadTime = 0;
-  let completed = 0;
-  let incomplete = 0;
 
-  for (const metric of taskMetrics) {
-    if (metric.Status === "Complete") {
-      completed += 1;
-      if (typeof metric.CycleTimeDays === "number") {
-        totalCycleTime += metric.CycleTimeDays;
-      }
-      if (typeof metric.LeadTimeDays === "number") {
-        totalLeadTime += metric.LeadTimeDays;
-      }
-    } else {
-      incomplete += 1;
+  const completed = completedTasks.length;
+  const incomplete = inProgressTasks.length;
+
+  for (const metric of completedTasks) {
+    if (typeof metric.CycleTimeDays === "number") {
+      totalCycleTime += metric.CycleTimeDays;
+    }
+    if (typeof metric.LeadTimeDays === "number") {
+      totalLeadTime += metric.LeadTimeDays;
     }
   }
 
