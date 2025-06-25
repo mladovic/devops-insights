@@ -12,6 +12,10 @@ const schema = z.object({
   M: z.number().positive(),
   L: z.number().positive(),
   XL: z.number().positive(),
+  rcaDeviationPercentage: z
+    .number()
+    .min(5, "Minimum is 5%")
+    .max(100, "Maximum is 100%"),
 });
 
 type Thresholds = z.infer<typeof schema>;
@@ -23,11 +27,19 @@ export default function ThresholdForm() {
     formState: { errors },
   } = useForm<Thresholds>({
     resolver: zodResolver(schema),
-    defaultValues: { XS: 1, S: 2, M: 3, L: 5, XL: 8 },
+    defaultValues: {
+      XS: 1,
+      S: 2,
+      M: 3,
+      L: 5,
+      XL: 8,
+      rcaDeviationPercentage: 20,
+    },
   });
 
   const onSubmit = (data: Thresholds) => {
-    console.log(data);
+    // TODO: replace with API call
+    console.log("Saving settings:", data);
   };
 
   return (
@@ -38,7 +50,10 @@ export default function ThresholdForm() {
       {["XS", "S", "M", "L", "XL"].map((size) => (
         <div key={size}>
           <label>{size} Threshold (days)</label>
-          <Input type="number" {...register(size as keyof Thresholds)} />
+          <Input
+            type="number"
+            {...register(size as keyof Thresholds, { valueAsNumber: true })}
+          />
           {errors[size as keyof Thresholds] && (
             <span className="text-red-500 text-sm">
               Please enter a valid number.
@@ -46,6 +61,18 @@ export default function ThresholdForm() {
           )}
         </div>
       ))}
+      <div>
+        <label>RCA Deviation Percentage (%)</label>
+        <Input
+          type="number"
+          {...register("rcaDeviationPercentage", { valueAsNumber: true })}
+        />
+        {errors.rcaDeviationPercentage && (
+          <span className="text-red-500 text-sm">
+            {errors.rcaDeviationPercentage.message as string}
+          </span>
+        )}
+      </div>
       <Button type="submit">Save Thresholds</Button>
     </form>
   );
