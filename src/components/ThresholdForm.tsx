@@ -1,20 +1,35 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { useSettings } from "@/context/SettingsContext";
+import { usePersistentThresholdConfig } from "@/hooks/usePersistentThresholdConfig";
+
+const rangeSchema = z
+  .object({
+    lower: z.number().positive(),
+    upper: z.number().positive(),
+  })
+  .refine((v) => v.lower < v.upper, {
+    message: "Lower must be < upper",
+    path: ["upper"],
+  });
 
 const schema = z.object({
-  XS: z.number().positive(),
-  S: z.number().positive(),
-  M: z.number().positive(),
-  L: z.number().positive(),
-  XL: z.number().positive(),
+  thresholds: z.object({
+    XS: rangeSchema,
+    S: rangeSchema,
+    M: rangeSchema,
+    L: rangeSchema,
+    XL: rangeSchema,
+  }),
   rcaDeviationPercentage: z
     .number()
+    .int("Must be an integer")
     .min(5, "Minimum is 5%")
     .max(100, "Maximum is 100%"),
 });
@@ -22,27 +37,25 @@ const schema = z.object({
 type Thresholds = z.infer<typeof schema>;
 
 export default function ThresholdForm() {
-  const { rcaDeviationPercentage, setRcaDeviationPercentage } = useSettings();
+  const { setRcaDeviationPercentage } = useSettings();
+  const { getConfig, updateConfig } = usePersistentThresholdConfig();
+  const defaultConfig = getConfig();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Thresholds>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      XS: 1,
-      S: 2,
-      M: 3,
-      L: 5,
-      XL: 8,
-      rcaDeviationPercentage,
-    },
+    defaultValues: defaultConfig,
   });
+
+  useEffect(() => {
+    setRcaDeviationPercentage(defaultConfig.rcaDeviationPercentage);
+  }, [defaultConfig.rcaDeviationPercentage, setRcaDeviationPercentage]);
 
   const onSubmit = (data: Thresholds) => {
     setRcaDeviationPercentage(data.rcaDeviationPercentage);
-    // TODO: replace with API call
-    console.log("Saving settings:", data);
+    updateConfig(data);
   };
 
   return (
@@ -52,14 +65,31 @@ export default function ThresholdForm() {
     >
       {["XS", "S", "M", "L", "XL"].map((size) => (
         <div key={size}>
-          <label>{size} Threshold (days)</label>
-          <Input
-            type="number"
-            {...register(size as keyof Thresholds, { valueAsNumber: true })}
-          />
-          {errors[size as keyof Thresholds] && (
+          <label className="font-medium block">{size} Threshold (days)</label>
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              placeholder="Lower"
+              {...register(`thresholds.${size}.lower` as const, {
+                valueAsNumber: true,
+              })}
+            />
+            <Input
+              type="number"
+              placeholder="Upper"
+              {...register(`thresholds.${size}.upper` as const, {
+                valueAsNumber: true,
+              })}
+            />
+          </div>
+          {errors.thresholds?.[size]?.lower && (
             <span className="text-red-500 text-sm">
-              Please enter a valid number.
+              {errors.thresholds[size]?.lower?.message as string}
+            </span>
+          )}
+          {errors.thresholds?.[size]?.upper && (
+            <span className="text-red-500 text-sm">
+              {errors.thresholds[size]?.upper?.message as string}
             </span>
           )}
         </div>
