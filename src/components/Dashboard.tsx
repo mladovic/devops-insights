@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import MetricsSummary, { type MetricsSummaryProps } from "@/components/MetricsSummary";
 import DashboardTaskList, { type TaskItem } from "@/components/DashboardTaskList";
+import DateRangeFilter, { type DateRangeOption } from "@/components/filters/DateRangeFilter";
 import { useSettings } from "@/context/SettingsContext";
 import { calculateTaskMetrics, type RawTask } from "@/lib/calculateTaskMetrics";
 import { calculateOverallMetrics } from "@/lib/calculateOverallMetrics";
@@ -25,6 +26,8 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
     [taskMetrics, rawTasks, config],
   );
 
+  const [selectedRange, setSelectedRange] = useState<DateRangeOption>("Last month");
+
   const taskData: TaskItem[] = useMemo(
     () =>
       rawTasks.map((task, idx) => ({
@@ -34,6 +37,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
         Assignee: (task as any)["Assigned To"] ?? null,
         CycleTimeDays: taskMetrics[idx].CycleTimeDays,
         LeadTimeDays: taskMetrics[idx].LeadTimeDays,
+        ClosedDate: (task as any)["Closed Date"] ?? undefined,
       })),
     [rawTasks, taskMetrics, config],
   );
@@ -55,7 +59,8 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
       {taskData && taskData.length > 0 && (
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">Task List</h2>
-          <DashboardTaskList taskData={taskData} />
+          <DateRangeFilter onRangeChange={setSelectedRange} />
+          <DashboardTaskList tasks={taskData} selectedDateRange={selectedRange} />
         </section>
       )}
     </div>
