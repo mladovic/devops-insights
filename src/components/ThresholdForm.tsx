@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
+import { useSettings } from "@/context/SettingsContext";
 
 const schema = z.object({
   XS: z.number().positive(),
@@ -21,6 +22,7 @@ const schema = z.object({
 type Thresholds = z.infer<typeof schema>;
 
 export default function ThresholdForm() {
+  const { rcaDeviationPercentage, setRcaDeviationPercentage } = useSettings();
   const {
     register,
     handleSubmit,
@@ -33,11 +35,12 @@ export default function ThresholdForm() {
       M: 3,
       L: 5,
       XL: 8,
-      rcaDeviationPercentage: 20,
+      rcaDeviationPercentage,
     },
   });
 
   const onSubmit = (data: Thresholds) => {
+    setRcaDeviationPercentage(data.rcaDeviationPercentage);
     // TODO: replace with API call
     console.log("Saving settings:", data);
   };

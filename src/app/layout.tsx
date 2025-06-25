@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import NavBar from "@/components/layout/NavBar";
+import { SettingsProvider } from "@/context/SettingsContext";
 
 export const metadata: Metadata = {
   title: "DevOps Insights",
@@ -15,8 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen">
-        <NavBar />
-        {children}
+        <SettingsProvider>
+          <NavBar />
+          {children}
+        </SettingsProvider>
       </body>
     </html>
   );

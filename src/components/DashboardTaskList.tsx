@@ -9,6 +9,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RCAIndicator from "@/components/RCAIndicator";
 import { checkRCAIndicator } from "@/lib/checkRCAIndicator";
+import { useSettings } from "@/context/SettingsContext";
 
 export interface TaskItem {
   ID: number;
@@ -29,6 +30,8 @@ export default function DashboardTaskList({
   if (!taskData || taskData.length === 0) {
     return null;
   }
+
+  const { rcaDeviationPercentage } = useSettings();
 
   return (
     <Card>
@@ -51,7 +54,11 @@ export default function DashboardTaskList({
             {taskData.map((task) => {
               const isRCA =
                 typeof task.CycleTimeDays === "number" &&
-                checkRCAIndicator(task.CycleTimeDays, "M");
+                checkRCAIndicator(
+                  task.CycleTimeDays,
+                  "M",
+                  rcaDeviationPercentage,
+                );
 
               return (
                 <TableRow key={task.ID}>
