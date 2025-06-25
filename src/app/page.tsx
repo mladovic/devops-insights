@@ -12,11 +12,33 @@ export default function DashboardPage() {
   const handleFile = async (file: File) => {
     setError(null);
     const result = await parseAndValidateCsv(file);
+
     if (result.success) {
       setShowDashboard(true);
-    } else {
-      setError("Upload failed, please try again.");
+      return;
     }
+
+    switch (result.error) {
+      case "empty_file":
+        console.error("CSV upload failed: empty_file");
+        break;
+      case "missing_columns":
+        console.error(
+          "CSV upload failed: missing_columns",
+          result.details,
+        );
+        break;
+      case "unexpected_columns":
+        console.error(
+          "CSV upload failed: unexpected_columns",
+          result.details,
+        );
+        break;
+      default:
+        console.error("CSV upload failed", result);
+    }
+
+    setError("Upload failed, please try again.");
   };
 
   if (showDashboard) {
