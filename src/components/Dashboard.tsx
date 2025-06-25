@@ -1,10 +1,12 @@
 import MetricsSummary from "@/components/MetricsSummary";
-import DashboardTaskList from "@/components/DashboardTaskList";
+import DashboardTaskList, {
+  type TaskItem,
+} from "@/components/DashboardTaskList";
 import type { MetricsSummaryProps } from "@/components/MetricsSummary";
 
 export interface DashboardProps {
   metricsData?: MetricsSummaryProps | null;
-  taskData?: any[] | null;
+  taskData?: TaskItem[] | null;
 }
 
 export default function Dashboard({ metricsData, taskData }: DashboardProps) {
@@ -25,7 +27,7 @@ export default function Dashboard({ metricsData, taskData }: DashboardProps) {
       {taskData && taskData.length > 0 && (
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">Task List</h2>
-          <DashboardTaskList tasks={taskData} />
+          <DashboardTaskList taskData={taskData} />
         </section>
       )}
     </div>

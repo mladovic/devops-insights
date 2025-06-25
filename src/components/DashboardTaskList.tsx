@@ -8,16 +8,26 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export interface DashboardTaskListProps {
-  tasks: Array<{
-    ID: number | string;
-    Title: string;
-    State: string;
-    [key: string]: any;
-  }>;
+export interface TaskItem {
+  ID: number;
+  Title: string;
+  WorkItemType: string;
+  Assignee: string | null;
+  CycleTimeDays?: number;
+  LeadTimeDays?: number;
 }
 
-export default function DashboardTaskList({ tasks }: DashboardTaskListProps) {
+export interface DashboardTaskListProps {
+  taskData: TaskItem[];
+}
+
+export default function DashboardTaskList({
+  taskData,
+}: DashboardTaskListProps) {
+  if (!taskData || taskData.length === 0) {
+    return null;
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -27,19 +37,29 @@ export default function DashboardTaskList({ tasks }: DashboardTaskListProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
+              <TableHead>Task ID</TableHead>
               <TableHead>Title</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>State</TableHead>
+              <TableHead>Work Item Type</TableHead>
+              <TableHead>Assignee</TableHead>
+              <TableHead>Cycle Time (days)</TableHead>
+              <TableHead>Lead Time (days)</TableHead>
+              <TableHead>RCA Indicator</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tasks.map((task) => (
+            {taskData.map((task) => (
               <TableRow key={task.ID}>
                 <TableCell>{task.ID}</TableCell>
                 <TableCell>{task.Title}</TableCell>
-                <TableCell>{task["Work Item Type"]}</TableCell>
-                <TableCell>{task.State}</TableCell>
+                <TableCell>{task.WorkItemType}</TableCell>
+                <TableCell>{task.Assignee ?? "-"}</TableCell>
+                <TableCell>
+                  {typeof task.CycleTimeDays === "number" ? task.CycleTimeDays : "-"}
+                </TableCell>
+                <TableCell>
+                  {typeof task.LeadTimeDays === "number" ? task.LeadTimeDays : "-"}
+                </TableCell>
+                <TableCell></TableCell>
               </TableRow>
             ))}
           </TableBody>
