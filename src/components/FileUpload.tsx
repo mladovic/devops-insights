@@ -2,6 +2,7 @@
 
 import { useState, DragEvent, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
+import UploadErrorMessage from "./UploadErrorMessage";
 
 interface FileUploadProps {
   onFileAccepted: (file: File) => void;
@@ -81,7 +82,7 @@ export default function FileUpload({
           <Button type="button">Browse</Button>
         </label>
       </div>
-      {error && <p className="text-destructive text-sm">{error}</p>}
+      {error && <UploadErrorMessage message={error} />}
     </div>
   );
 }
