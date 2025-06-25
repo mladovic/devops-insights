@@ -3,6 +3,7 @@
 import { useState } from "react";
 import FileUpload from "@/components/FileUpload";
 import Dashboard from "@/components/Dashboard";
+import type { TaskItem } from "@/components/DashboardTaskList";
 import type { MetricsSummaryProps } from "@/components/MetricsSummary";
 import {
   calculateTaskMetrics,
@@ -17,7 +18,7 @@ export default function DashboardPage() {
   const [showDashboard, setShowDashboard] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<MetricsSummaryProps | null>(null);
-  const [tasks, setTasks] = useState<RawTask[] | null>(null);
+  const [tasks, setTasks] = useState<TaskItem[] | null>(null);
 
   const handleFile = async (file: File) => {
     setError(null);
@@ -25,9 +26,17 @@ export default function DashboardPage() {
 
     if (result.success) {
       const rawTasks = result.data as RawTask[];
-      setTasks(rawTasks);
-
       const taskMetrics = calculateTaskMetrics(rawTasks);
+      const dashboardTasks: TaskItem[] = rawTasks.map((task, idx) => ({
+        ID: Number(task.ID),
+        Title: (task as any).Title,
+        WorkItemType: (task as any)["Work Item Type"],
+        Assignee: (task as any)["Assigned To"] ?? null,
+        CycleTimeDays: taskMetrics[idx].CycleTimeDays,
+        LeadTimeDays: taskMetrics[idx].LeadTimeDays,
+      }));
+      setTasks(dashboardTasks);
+
       const metricsSummary: MetricsSummaryProps = {
         overall: calculateOverallMetrics(taskMetrics),
         byType: aggregateMetricsByType(taskMetrics),
