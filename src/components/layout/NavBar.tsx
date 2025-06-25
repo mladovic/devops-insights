@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 export default function NavBar() {
   return (
     <nav className="flex gap-4 p-4 shadow bg-gray-100">
-      <Link href="/dashboard">
+      <Link href="/">
         <Button variant="link">Dashboard</Button>
       </Link>
       <Link href="/settings">
