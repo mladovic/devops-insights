@@ -16,26 +16,45 @@ const EXPECTED_HEADERS = [
 
 export async function parseAndValidateCsv(
   file: File,
-): Promise<{ success: true; data: any[] } | { success: false; error: "invalid_format" }> {
+): Promise<
+  | { success: true; data: any[] }
+  | { success: false; error: "empty_file" }
+  | { success: false; error: "missing_columns"; details: string[] }
+  | { success: false; error: "unexpected_columns"; details: string[] }
+> {
   return new Promise((resolve) => {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
       complete(results) {
         const actual = results.meta.fields || [];
-        const hasAllHeaders =
-          EXPECTED_HEADERS.length === actual.length &&
-          EXPECTED_HEADERS.every((h) => actual.includes(h)) &&
-          actual.every((h) => EXPECTED_HEADERS.includes(h));
 
-        if (hasAllHeaders) {
-          resolve({ success: true, data: results.data as any[] });
-        } else {
-          resolve({ success: false, error: "invalid_format" });
+        if (actual.length === 0 || results.data.length === 0) {
+          resolve({ success: false, error: "empty_file" });
+          return;
         }
+
+        const missing = EXPECTED_HEADERS.filter((h) => !actual.includes(h));
+        const unexpected = actual.filter((h) => !EXPECTED_HEADERS.includes(h));
+
+        if (missing.length > 0) {
+          resolve({ success: false, error: "missing_columns", details: missing });
+          return;
+        }
+
+        if (unexpected.length > 0) {
+          resolve({
+            success: false,
+            error: "unexpected_columns",
+            details: unexpected,
+          });
+          return;
+        }
+
+        resolve({ success: true, data: results.data as any[] });
       },
       error() {
-        resolve({ success: false, error: "invalid_format" });
+        resolve({ success: false, error: "empty_file" });
       },
     });
   });
