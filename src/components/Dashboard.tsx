@@ -1,15 +1,43 @@
-import MetricsSummary from "@/components/MetricsSummary";
-import DashboardTaskList, {
-  type TaskItem,
-} from "@/components/DashboardTaskList";
-import type { MetricsSummaryProps } from "@/components/MetricsSummary";
+import { useMemo } from "react";
+import MetricsSummary, { type MetricsSummaryProps } from "@/components/MetricsSummary";
+import DashboardTaskList, { type TaskItem } from "@/components/DashboardTaskList";
+import { useSettings } from "@/context/SettingsContext";
+import { calculateTaskMetrics, type RawTask } from "@/lib/calculateTaskMetrics";
+import { calculateOverallMetrics } from "@/lib/calculateOverallMetrics";
+import { aggregateMetricsByType } from "@/lib/aggregateMetricsByType";
+import { calculateThroughputMetrics } from "@/lib/calculateThroughputMetrics";
 
 export interface DashboardProps {
-  metricsData?: MetricsSummaryProps | null;
-  taskData?: TaskItem[] | null;
+  rawTasks: RawTask[];
 }
 
-export default function Dashboard({ metricsData, taskData }: DashboardProps) {
+export default function Dashboard({ rawTasks }: DashboardProps) {
+  const { config } = useSettings();
+
+  const taskMetrics = useMemo(() => calculateTaskMetrics(rawTasks), [rawTasks]);
+
+  const metricsData: MetricsSummaryProps = useMemo(
+    () => ({
+      overall: calculateOverallMetrics(taskMetrics),
+      byType: aggregateMetricsByType(taskMetrics),
+      throughput: calculateThroughputMetrics(rawTasks, new Date()),
+    }),
+    [taskMetrics, rawTasks, config],
+  );
+
+  const taskData: TaskItem[] = useMemo(
+    () =>
+      rawTasks.map((task, idx) => ({
+        ID: Number(task.ID),
+        Title: (task as any).Title,
+        WorkItemType: (task as any)["Work Item Type"],
+        Assignee: (task as any)["Assigned To"] ?? null,
+        CycleTimeDays: taskMetrics[idx].CycleTimeDays,
+        LeadTimeDays: taskMetrics[idx].LeadTimeDays,
+      })),
+    [rawTasks, taskMetrics, config],
+  );
+
   const hasMetricsData =
     metricsData && Object.keys(metricsData.byType ?? {}).length > 0;
 
