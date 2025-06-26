@@ -11,6 +11,7 @@ export interface TaskTableVisibility {
 }
 
 export interface TaskTableVisibilityToggleProps {
+  visibility?: TaskTableVisibility;
   onToggleChange?: (state: TaskTableVisibility) => void;
   className?: string;
 }
@@ -18,69 +19,52 @@ export interface TaskTableVisibilityToggleProps {
 const STORAGE_KEY = "taskTableVisibility";
 
 export default function TaskTableVisibilityToggle({
+  visibility,
   onToggleChange,
   className,
 }: TaskTableVisibilityToggleProps) {
-  const [state, setState] = useState<TaskTableVisibility>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored) as Partial<TaskTableVisibility>;
-          return {
-            completed:
-              typeof parsed.completed === "boolean" ? parsed.completed : true,
-            inProgress:
-              typeof parsed.inProgress === "boolean" ? parsed.inProgress : true,
-            notStarted:
-              typeof parsed.notStarted === "boolean" ? parsed.notStarted : true,
-          };
-        }
-      } catch {
-        // ignore JSON parse errors
-      }
-    }
-    return { completed: true, inProgress: true, notStarted: true };
-  });
+  console.log(
+    "TaskTableVisibilityToggle rendered with visibility:",
+    visibility
+  );
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch {
-      // ignore write errors
+  const resolveVisibility = () => {
+    const values = [];
+    if (visibility?.completed) {
+      values.push("completed");
     }
-    onToggleChange?.(state);
-  }, [state, onToggleChange]);
+    if (visibility?.inProgress) {
+      values.push("inProgress");
+    }
+    if (visibility?.notStarted) {
+      values.push("notStarted");
+    }
+    return values;
+  };
 
   const toggle = (key: keyof TaskTableVisibility) => {
-    setState((prev) => ({ ...prev, [key]: !prev[key] }));
+    const value = visibility?.[key];
+    onToggleChange?.((prev) => ({
+      ...prev,
+      [key]: !value,
+    }));
   };
 
   return (
-    <ToggleGroup type="multiple" className={cn(className)}>
-      <ToggleGroupItem
-        value="completed"
-        pressed={state.completed}
-        onPressedChange={() => toggle("completed")}
-      >
+    <ToggleGroup
+      type="multiple"
+      className={cn(className)}
+      value={resolveVisibility()}
+    >
+      <ToggleGroupItem value="completed" onClick={() => toggle("completed")}>
         Completed
       </ToggleGroupItem>
-      <ToggleGroupItem
-        value="inProgress"
-        pressed={state.inProgress}
-        onPressedChange={() => toggle("inProgress")}
-      >
+      <ToggleGroupItem value="inProgress" onClick={() => toggle("inProgress")}>
         In Progress
       </ToggleGroupItem>
-      <ToggleGroupItem
-        value="notStarted"
-        pressed={state.notStarted}
-        onPressedChange={() => toggle("notStarted")}
-      >
+      <ToggleGroupItem value="notStarted" onClick={() => toggle("notStarted")}>
         Not Started
       </ToggleGroupItem>
     </ToggleGroup>
   );
 }
-

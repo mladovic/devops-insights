@@ -170,9 +170,12 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
     <div className="p-4 space-y-8">
       <div className="flex flex-col gap-2 items-start">
         <h1 className="text-2xl font-semibold">Project Dashboard</h1>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-row gap-2">
           <DateRangeFilter onRangeChange={setSelectedRange} />
-          <TaskTableVisibilityToggle onToggleChange={setVisibility} />
+          <TaskTableVisibilityToggle
+            visibility={visibility}
+            onToggleChange={setVisibility}
+          />
         </div>
       </div>
 
