@@ -105,11 +105,11 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
     () => ({
       overall: calculateOverallMetrics({
         completedTasks: completedMetrics,
-        inProgressTasks: inProgressMetrics,
+        incompleteCount: inProgressMetrics.length,
       }),
       byType: aggregateMetricsByType({
         completedTasks: completedMetrics,
-        inProgressTasks: inProgressMetrics,
+        incompleteTasks: inProgressMetrics,
       }),
       throughput: calculateThroughputMetrics(filteredRawTasks, new Date()),
       selectedDateRange: selectedRange,

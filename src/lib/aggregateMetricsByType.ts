@@ -9,20 +9,22 @@ export interface AggregatedMetrics {
 
 import type { TaskMetrics } from "./calculateTaskMetrics";
 
-export interface FilteredTaskMetrics {
-  completedTasks: TaskMetrics[];
-  inProgressTasks: TaskMetrics[];
+export type CompletedTaskMetrics = TaskMetrics & { Status: "Complete" };
+
+export interface MetricsByTypeInput {
+  /** Metrics for completed tasks only */
+  completedTasks: CompletedTaskMetrics[];
+  /** Optional metrics for incomplete tasks used solely for counts */
+  incompleteTasks?: TaskMetrics[];
 }
 
 export function aggregateMetricsByType({
   completedTasks,
-  inProgressTasks,
-}: FilteredTaskMetrics): AggregatedMetrics {
+  incompleteTasks = [],
+}: MetricsByTypeInput): AggregatedMetrics {
   const result: AggregatedMetrics = {};
 
-  const allMetrics = [...completedTasks, ...inProgressTasks];
-
-  for (const metric of allMetrics) {
+  for (const metric of completedTasks) {
     const type = metric.WorkItemType;
     if (!result[type]) {
       result[type] = {
@@ -32,18 +34,26 @@ export function aggregateMetricsByType({
         incompleteTasks: 0,
       };
     }
-
-    if (metric.Status === "Complete") {
-      result[type].completedTasks += 1;
-      if (typeof metric.CycleTimeDays === "number") {
-        result[type].averageCycleTimeDays += metric.CycleTimeDays;
-      }
-      if (typeof metric.LeadTimeDays === "number") {
-        result[type].averageLeadTimeDays += metric.LeadTimeDays;
-      }
-    } else {
-      result[type].incompleteTasks += 1;
+    result[type].completedTasks += 1;
+    if (typeof metric.CycleTimeDays === "number") {
+      result[type].averageCycleTimeDays += metric.CycleTimeDays;
     }
+    if (typeof metric.LeadTimeDays === "number") {
+      result[type].averageLeadTimeDays += metric.LeadTimeDays;
+    }
+  }
+
+  for (const metric of incompleteTasks) {
+    const type = metric.WorkItemType;
+    if (!result[type]) {
+      result[type] = {
+        averageCycleTimeDays: 0,
+        averageLeadTimeDays: 0,
+        completedTasks: 0,
+        incompleteTasks: 0,
+      };
+    }
+    result[type].incompleteTasks += 1;
   }
 
   for (const type of Object.keys(result)) {
