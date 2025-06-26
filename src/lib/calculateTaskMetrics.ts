@@ -6,6 +6,7 @@ export interface RawTask {
   CreatedDate: string;
   ActivatedDate?: string;
   "Closed Date"?: string;
+  TShirtSize?: import("./checkRCAIndicator").TShirtSize;
 }
 
 export interface TaskMetrics {

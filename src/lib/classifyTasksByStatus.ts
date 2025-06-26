@@ -3,6 +3,7 @@ export interface Task {
   Title: string;
   WorkItemType: string;
   Assignee?: string | null;
+  TShirtSize?: import("./checkRCAIndicator").TShirtSize;
   CreatedDate: string;
   ActivatedDate?: string;
   ClosedDate?: string;

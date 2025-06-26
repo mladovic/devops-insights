@@ -10,6 +10,7 @@ function getComparableValue(task: GenericTask, key: string): number | string | D
   switch (key) {
     case "ID":
     case "CycleTimeDays":
+    case "CycleTimePercentage":
     case "LeadTimeDays":
       if (value === undefined || value === null || value === "") return null;
       const num = typeof value === "number" ? value : Number(value);
