@@ -13,6 +13,7 @@ const EXPECTED_HEADERS = [
   "Closed Date",
   "Effort",
   "History",
+  "T Shirt Size",
 ];
 
 export async function parseAndValidateCsv(
@@ -58,7 +59,14 @@ export async function parseAndValidateCsv(
 
         const parsed: WorkItem[] = [];
         for (const row of results.data as any[]) {
-          const parsedRow = WorkItemSchema.parse(row);
+          const sanitizedRow = {
+            ...row,
+            TShirtSize:
+              row["T Shirt Size"] === undefined || row["T Shirt Size"] === ""
+                ? undefined
+                : (row["T Shirt Size"] as string),
+          };
+          const parsedRow = WorkItemSchema.parse(sanitizedRow);
           parsed.push(parsedRow);
         }
 
