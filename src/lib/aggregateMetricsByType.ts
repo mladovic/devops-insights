@@ -9,11 +9,9 @@ export interface AggregatedMetrics {
 
 import type { TaskMetrics } from "./calculateTaskMetrics";
 
-export type CompletedTaskMetrics = TaskMetrics & { Status: "Complete" };
-
 export interface MetricsByTypeInput {
   /** Metrics for completed tasks only */
-  completedTasks: CompletedTaskMetrics[];
+  completedTasks: TaskMetrics[];
   /** Optional metrics for incomplete tasks used solely for counts */
   incompleteTasks?: TaskMetrics[];
 }
@@ -59,7 +57,8 @@ export function aggregateMetricsByType({
   for (const type of Object.keys(result)) {
     const data = result[type];
     if (data.completedTasks > 0) {
-      data.averageCycleTimeDays = data.averageCycleTimeDays / data.completedTasks;
+      data.averageCycleTimeDays =
+        data.averageCycleTimeDays / data.completedTasks;
       data.averageLeadTimeDays = data.averageLeadTimeDays / data.completedTasks;
     } else {
       data.averageCycleTimeDays = 0;

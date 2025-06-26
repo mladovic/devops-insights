@@ -2,9 +2,9 @@ import { differenceInCalendarDays, isValid } from "date-fns";
 
 export interface RawTask {
   ID: number | string;
-  "Work Item Type": string;
-  "Created Date": string;
-  "Activated Date"?: string;
+  WorkItemType: string;
+  CreatedDate: string;
+  ActivatedDate?: string;
   "Closed Date"?: string;
 }
 
@@ -19,7 +19,7 @@ export interface TaskMetrics {
 export function calculateTaskMetrics(tasks: RawTask[]): TaskMetrics[] {
   return tasks.map((task) => {
     const id = Number(task.ID);
-    const workItemType = task["Work Item Type"];
+    const workItemType = task["WorkItemType"];
     const closedDateStr = task["Closed Date"];
 
     if (!closedDateStr) {
@@ -39,8 +39,8 @@ export function calculateTaskMetrics(tasks: RawTask[]): TaskMetrics[] {
       };
     }
 
-    const createdDate = new Date(task["Created Date"]);
-    const activatedDateStr = task["Activated Date"] ?? task["Created Date"];
+    const createdDate = new Date(task["CreatedDate"]);
+    const activatedDateStr = task["ActivatedDate"] ?? task["CreatedDate"];
     const activatedDate = new Date(activatedDateStr);
 
     const cycleTimeDays = isValid(activatedDate)

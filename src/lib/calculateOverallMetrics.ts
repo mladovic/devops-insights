@@ -7,11 +7,9 @@ export interface OverallMetrics {
 
 import type { TaskMetrics } from "./calculateTaskMetrics";
 
-export type CompletedTaskMetrics = TaskMetrics & { Status: "Complete" };
-
 export interface CompletedMetricsInput {
   /** Metrics for tasks that have been completed */
-  completedTasks: CompletedTaskMetrics[];
+  completedTasks: TaskMetrics[];
   /** Count of tasks that are not yet complete */
   incompleteCount: number;
 }

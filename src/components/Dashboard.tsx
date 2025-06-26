@@ -49,14 +49,11 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
     [rawTasks]
   );
 
-  const { completedTasks, inProgressTasks, notStartedTasks } = useMemo(
-    () => {
-      const { completedTasks, inProgressTasks, notStartedTasks } =
-        classifyTasksByStatus(normalizedTasks);
-      return { completedTasks, inProgressTasks, notStartedTasks };
-    },
-    [normalizedTasks]
-  );
+  const { completedTasks, inProgressTasks, notStartedTasks } = useMemo(() => {
+    const { completedTasks, inProgressTasks, notStartedTasks } =
+      classifyTasksByStatus(normalizedTasks);
+    return { completedTasks, inProgressTasks, notStartedTasks };
+  }, [normalizedTasks]);
 
   const { completedTasks: filteredCompleted } = useMemo(
     () => filterTasksByDateRange(completedTasks, selectedRange),
@@ -81,7 +78,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
     () =>
       openTasks.map((task) => {
         const { ClosedDate, ...rest } = task;
-        return { ...rest, "Closed Date": ClosedDate } as RawTask;
+        return { ...rest, "Closed Date": ClosedDate } as unknown as RawTask;
       }),
     [openTasks]
   );
