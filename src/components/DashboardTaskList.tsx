@@ -7,9 +7,8 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import RCAIndicator from "@/components/RCAIndicator";
 import SortableTableHeader from "@/components/SortableTableHeader";
-import { checkRCAIndicator } from "@/lib/checkRCAIndicator";
+import { getCycleTimePercentageColor } from "@/lib/getCycleTimePercentageColor";
 import { filterTasksByDateRange, type DateRangeOption } from "@/lib/filterTasksByDateRange";
 import { sortTasks, type SortDirection } from "@/lib/sortTasks";
 import { useSettings } from "@/context/SettingsContext";
@@ -22,6 +21,8 @@ export interface TaskItem {
   Assignee: string | null;
   CycleTimeDays?: number;
   LeadTimeDays?: number;
+  TShirtSize?: import("@/lib/checkRCAIndicator").TShirtSize;
+  CycleTimePercentage?: number | "No reference";
   ClosedDate?: string;
 }
 
@@ -78,30 +79,39 @@ export default function DashboardTaskList({
             {sortedCompleted.length > 0 && (
               <>
                 <TableRow className="bg-muted/50">
-                  <TableCell colSpan={7} className="font-semibold">
+                  <TableCell colSpan={8} className="font-semibold">
                     Completed
                   </TableCell>
                 </TableRow>
                 {sortedCompleted.map((task) => {
-                  const isRCA =
-                    typeof task.CycleTimeDays === "number" &&
-                    checkRCAIndicator(task.CycleTimeDays, "M", config);
-
                   return (
                     <TableRow key={`c-${task.ID}`}>
                       <TableCell>{task.ID}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {task.Title}
-                          <RCAIndicator isRCA={isRCA} />
-                        </div>
-                      </TableCell>
+                      <TableCell>{task.Title}</TableCell>
                       <TableCell>{task.WorkItemType}</TableCell>
                       <TableCell>{task.Assignee ?? "-"}</TableCell>
                       <TableCell>
                         {typeof task.CycleTimeDays === "number"
                           ? task.CycleTimeDays
                           : "-"}
+                      </TableCell>
+                      <TableCell>
+                        {task.CycleTimePercentage !== undefined ? (
+                          <span
+                            className={(() => {
+                              const color = getCycleTimePercentageColor(
+                                task.CycleTimePercentage,
+                                config.rcaDeviationPercentage,
+                              );
+                              if (color === "black") return "text-black";
+                              return `text-${color}-500`;
+                            })()}
+                          >
+                            {task.CycleTimePercentage}
+                          </span>
+                        ) : (
+                          "-"
+                        )}
                       </TableCell>
                       <TableCell>
                         {typeof task.LeadTimeDays === "number"
@@ -118,30 +128,39 @@ export default function DashboardTaskList({
             {sortedInProgress.length > 0 && (
               <>
                 <TableRow className="bg-muted/50">
-                  <TableCell colSpan={7} className="font-semibold">
+                  <TableCell colSpan={8} className="font-semibold">
                     In Progress
                   </TableCell>
                 </TableRow>
                 {sortedInProgress.map((task) => {
-                  const isRCA =
-                    typeof task.CycleTimeDays === "number" &&
-                    checkRCAIndicator(task.CycleTimeDays, "M", config);
-
                   return (
                     <TableRow key={`p-${task.ID}`}>
                       <TableCell>{task.ID}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {task.Title}
-                          <RCAIndicator isRCA={isRCA} />
-                        </div>
-                      </TableCell>
+                      <TableCell>{task.Title}</TableCell>
                       <TableCell>{task.WorkItemType}</TableCell>
                       <TableCell>{task.Assignee ?? "-"}</TableCell>
                       <TableCell>
                         {typeof task.CycleTimeDays === "number"
                           ? task.CycleTimeDays
                           : "-"}
+                      </TableCell>
+                      <TableCell>
+                        {task.CycleTimePercentage !== undefined ? (
+                          <span
+                            className={(() => {
+                              const color = getCycleTimePercentageColor(
+                                task.CycleTimePercentage,
+                                config.rcaDeviationPercentage,
+                              );
+                              if (color === "black") return "text-black";
+                              return `text-${color}-500`;
+                            })()}
+                          >
+                            {task.CycleTimePercentage}
+                          </span>
+                        ) : (
+                          "-"
+                        )}
                       </TableCell>
                       <TableCell>
                         {typeof task.LeadTimeDays === "number"

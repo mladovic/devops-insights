@@ -27,6 +27,7 @@ const COLUMNS: ColumnDef[] = [
   { key: "WorkItemType", label: "Work Item Type" },
   { key: "Assignee", label: "Assignee" },
   { key: "CycleTimeDays", label: "Cycle Time" },
+  { key: "CycleTimePercentage", label: "Cycle Time %" },
   { key: "LeadTimeDays", label: "Lead Time" },
   { key: "ClosedDate", label: "Closed Date" },
 ];

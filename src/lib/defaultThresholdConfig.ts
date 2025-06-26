@@ -1,12 +1,12 @@
-export const defaultThresholdConfig = {
+export const ThresholdConfig = {
   thresholds: {
-    XS: { lower: 1, upper: 2 },
-    S: { lower: 2, upper: 4 },
-    M: { lower: 3, upper: 6 },
-    L: { lower: 5, upper: 10 },
-    XL: { lower: 8, upper: 15 },
+    XS: 2,
+    S: 7,
+    M: 14,
+    L: 30,
+    XL: 60,
   },
   rcaDeviationPercentage: 20,
 };
 
-export type ThresholdConfig = typeof defaultThresholdConfig;
+export type ThresholdConfig = typeof ThresholdConfig;

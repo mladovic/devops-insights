@@ -18,6 +18,7 @@ import { aggregateMetricsByType } from "@/lib/aggregateMetricsByType";
 import { calculateThroughputMetrics } from "@/lib/calculateThroughputMetrics";
 import type { SortDirection } from "@/lib/sortTasks";
 import { classifyTasksByStatus } from "@/lib/classifyTasksByStatus";
+import { calculateCycleTimePercentage } from "@/lib/calculateCycleTimePercentage";
 import { usePersistentTaskTableVisibility } from "@/hooks/usePersistentTaskTableVisibility";
 
 export interface DashboardProps {
@@ -45,6 +46,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
         CreatedDate: (t as any)["Created Date"],
         ActivatedDate: (t as any)["Activated Date"] ?? undefined,
         ClosedDate: (t as any)["Closed Date"] ?? undefined,
+        TShirtSize: (t as any).TShirtSize ?? undefined,
       })),
     [rawTasks]
   );
@@ -129,9 +131,17 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
         Assignee: task.Assignee ?? null,
         CycleTimeDays: completedMetrics[idx].CycleTimeDays,
         LeadTimeDays: completedMetrics[idx].LeadTimeDays,
+        TShirtSize: task.TShirtSize,
+        CycleTimePercentage:
+          typeof completedMetrics[idx].CycleTimeDays === "number"
+            ? calculateCycleTimePercentage(
+                completedMetrics[idx].CycleTimeDays!,
+                task.TShirtSize,
+              )
+            : undefined,
         ClosedDate: task.ClosedDate ?? undefined,
       })),
-    [filteredCompleted, completedMetrics]
+    [filteredCompleted, completedMetrics, config]
   );
 
   const inProgressListData = useMemo(
@@ -142,6 +152,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
         WorkItemType: task.WorkItemType,
         Assignee: task.Assignee ?? null,
         ActivatedDate: task.ActivatedDate,
+        TShirtSize: task.TShirtSize,
       })),
     [inProgressTasks]
   );
@@ -154,6 +165,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
         WorkItemType: task.WorkItemType,
         Assignee: task.Assignee ?? null,
         CreatedDate: task.CreatedDate,
+        TShirtSize: task.TShirtSize,
       })),
     [notStartedTasks]
   );
