@@ -141,7 +141,7 @@ export default function Dashboard({ rawTasks }: DashboardProps) {
             : undefined,
         ClosedDate: task.ClosedDate ?? undefined,
       })),
-    [filteredCompleted, completedMetrics]
+    [filteredCompleted, completedMetrics, config]
   );
 
   const inProgressListData = useMemo(
