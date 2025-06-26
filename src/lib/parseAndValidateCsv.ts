@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { WorkItemSchema, type WorkItem } from "@/lib/workItemSchema";
 
 const EXPECTED_HEADERS = [
   "ID",
@@ -15,9 +16,9 @@ const EXPECTED_HEADERS = [
 ];
 
 export async function parseAndValidateCsv(
-  file: File
+  file: File,
 ): Promise<
-  | { success: true; data: any[] }
+  | { success: true; data: WorkItem[] }
   | { success: false; error: "empty_file" }
   | { success: false; error: "missing_columns"; details: string[] }
   | { success: false; error: "unexpected_columns"; details: string[] }
@@ -54,7 +55,14 @@ export async function parseAndValidateCsv(
           });
           return;
         }
-        resolve({ success: true, data: results.data as any[] });
+
+        const parsed: WorkItem[] = [];
+        for (const row of results.data as any[]) {
+          const parsedRow = WorkItemSchema.parse(row);
+          parsed.push(parsedRow);
+        }
+
+        resolve({ success: true, data: parsed });
       },
       error() {
         resolve({ success: false, error: "empty_file" });
