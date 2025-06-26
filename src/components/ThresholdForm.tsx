@@ -7,23 +7,13 @@ import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { useSettings } from "@/context/SettingsContext";
 
-const rangeSchema = z
-  .object({
-    lower: z.number().positive(),
-    upper: z.number().positive(),
-  })
-  .refine((v) => v.lower < v.upper, {
-    message: "Lower must be < upper",
-    path: ["upper"],
-  });
-
 const schema = z.object({
   thresholds: z.object({
-    XS: rangeSchema,
-    S: rangeSchema,
-    M: rangeSchema,
-    L: rangeSchema,
-    XL: rangeSchema,
+    XS: z.number().positive(),
+    S: z.number().positive(),
+    M: z.number().positive(),
+    L: z.number().positive(),
+    XL: z.number().positive(),
   }),
   rcaDeviationPercentage: z
     .number()
@@ -57,30 +47,15 @@ export default function ThresholdForm() {
       {["XS", "S", "M", "L", "XL"].map((size) => (
         <div key={size}>
           <label className="font-medium block">{size} Threshold (days)</label>
-          <div className="flex gap-2">
-            <Input
-              type="number"
-              placeholder="Lower"
-              {...register(`thresholds.${size}.lower` as const, {
-                valueAsNumber: true,
-              })}
-            />
-            <Input
-              type="number"
-              placeholder="Upper"
-              {...register(`thresholds.${size}.upper` as const, {
-                valueAsNumber: true,
-              })}
-            />
-          </div>
-          {errors.thresholds?.[size]?.lower && (
+          <Input
+            type="number"
+            {...register(`thresholds.${size}` as const, {
+              valueAsNumber: true,
+            })}
+          />
+          {errors.thresholds?.[size] && (
             <span className="text-red-500 text-sm">
-              {errors.thresholds[size]?.lower?.message as string}
-            </span>
-          )}
-          {errors.thresholds?.[size]?.upper && (
-            <span className="text-red-500 text-sm">
-              {errors.thresholds[size]?.upper?.message as string}
+              {errors.thresholds[size]?.message as string}
             </span>
           )}
         </div>

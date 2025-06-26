@@ -1,9 +1,9 @@
-import {
-  defaultThresholdConfig,
-  type ThresholdConfig,
+import { ThresholdConfig } from "@/lib/defaultThresholdConfig";
+import type {
+  ThresholdConfig as ThresholdConfigType,
 } from "@/lib/defaultThresholdConfig";
 
-export type TShirtSize = keyof ThresholdConfig["thresholds"];
+export type TShirtSize = keyof ThresholdConfigType["thresholds"];
 
 /**
  * Determines if an RCA indicator should be shown based on the cycle time and
@@ -17,12 +17,12 @@ export type TShirtSize = keyof ThresholdConfig["thresholds"];
 export function checkRCAIndicator(
   cycleTimeDays: number,
   tShirtSize: TShirtSize,
-  config: ThresholdConfig = defaultThresholdConfig,
+  config: ThresholdConfigType = ThresholdConfig,
 ): boolean {
   const { thresholds, rcaDeviationPercentage } = config;
-  const { lower, upper } = thresholds[tShirtSize];
+  const expected = thresholds[tShirtSize];
   const factor = rcaDeviationPercentage / 100;
-  const lowerBound = lower * (1 - factor);
-  const upperBound = upper * (1 + factor);
+  const lowerBound = expected * (1 - factor);
+  const upperBound = expected * (1 + factor);
   return cycleTimeDays < lowerBound || cycleTimeDays > upperBound;
 }

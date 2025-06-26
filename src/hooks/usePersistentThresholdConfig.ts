@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react";
-import {
-  defaultThresholdConfig,
-  type ThresholdConfig,
+import { ThresholdConfig } from "@/lib/defaultThresholdConfig";
+import type {
+  ThresholdConfig as ThresholdConfigType,
 } from "@/lib/defaultThresholdConfig";
 
 const STORAGE_KEY = "thresholdConfig";
 
 export function usePersistentThresholdConfig() {
-  const [config, setConfig] = useState<ThresholdConfig>(() => {
+  const [config, setConfig] = useState<ThresholdConfigType>(() => {
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
-          return JSON.parse(stored) as ThresholdConfig;
+          return JSON.parse(stored) as ThresholdConfigType;
         }
       } catch {
         // ignore JSON parse errors
       }
     }
-    return defaultThresholdConfig;
+    return ThresholdConfig;
   });
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function usePersistentThresholdConfig() {
 
   const getConfig = () => config;
 
-  const updateConfig = (newConfig: ThresholdConfig) => {
+  const updateConfig = (newConfig: ThresholdConfigType) => {
     setConfig(newConfig);
   };
 
